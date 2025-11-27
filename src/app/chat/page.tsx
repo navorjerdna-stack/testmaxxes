@@ -19,9 +19,8 @@ export default function ChatPage() {
         Type something – she will answer immediately!
       </p>
       <div style={{ marginTop: "3rem" }}>
-        <input type="text" placeholder="Your message..." style={{ padding: "1rem", width: "400px", borderRadius: "0.5rem", border: "none" }} />
+        <input type="text" placeholder="Your message..." style={{ padding: "1rem", width: "400px", borderRadius: "0.5rem", border: "none", marginRight: "1rem" }} />
         <button style={{
-          marginLeft: "1rem",
           padding: "1rem 2rem",
           background: "#ec4899",
           color: "white",
