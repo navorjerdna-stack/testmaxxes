@@ -1,4 +1,4 @@
-export default function Home() {
+tsxexport default function Home() {
   return (
     <main
       style={{
