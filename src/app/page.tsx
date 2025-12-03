@@ -9,7 +9,7 @@ export default function Home() {
           is waiting for you 24-7
         </h2>
         <p style={{ fontSize: "2.5rem" }}>
-          no drama · always there · 100% private
+          no drama·always there · 100% private
         </p>
       </div>
     </main>
