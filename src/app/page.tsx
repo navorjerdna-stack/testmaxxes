@@ -3,36 +3,50 @@
 import { useState, useEffect } from "react";
 
 type Role = "girlfriend" | "boyfriend" | "friend" | "girlfriend_friend";
-type Lang = "en"|"de"|"es"|"fr"|"hr"|"it"|"pl"|"ru"|"sl"|"uk"|"zh";
+type Lang = "en" | "de" | "es" | "fr" | "hr" | "it" | "pl" | "ru" | "sl" | "uk" | "zh";
+type Message = { role: "user" | "assistant"; content: string };
 
-const translations = {
-  en: { flag:"US", title:(r:Role)=>({girlfriend:"Your AI Girlfriend",boyfriend:"Your AI Boyfriend",friend:"Your AI Best Friend",girlfriend_friend:"Your AI Best Girlfriend"}[r]), hi:(r:Role)=>({girlfriend:"Hey baby ❤️ I'm here 24-7... What do you want tonight?",boyfriend:"Hey beautiful ❤️ Always here for you...",friend:"Yo! What's good bro?",girlfriend_friend:"Girl!! Finally here! Spill the tea ❤️"}[r]), placeholder:"Type a message...", tagline:"24-7 · no drama · 100% private" },
-  de: { flag:"DE", title:(r:Role)=>({girlfriend:"Deine AI-Freundin",boyfriend:"Dein AI-Freund",friend:"Dein bester Freund",girlfriend_friend:"Deine beste Freundin"}[r]), hi:(r:Role)=>({girlfriend:"Hey Baby ❤️ Ich bin 24-7 für dich da...",boyfriend:"Hey Schönheit ❤️",friend:"Yo! Was geht?",girlfriend_friend:"Mädel!! Erzähl alles ❤️"}[r]), placeholder:"Schreib etwas...", tagline:"24-7 · kein Drama · 100 % privat" },
-  es: { flag:"ES", title:(r:Role)=>({girlfriend:"Tu novia IA",boyfriend:"Tu novio IA",friend:"Tu mejor amigo",girlfriend_friend:"Tu mejor amiga"}[r]), hi:(r:Role)=>({girlfriend:"Hola cariño ❤️ Estoy aquí 24-7…",boyfriend:"Hola preciosa ❤️",friend:"¡Tío! ¿Qué pasa?",girlfriend_friend:"¡¡Nena!! Cuéntamelo todo ❤️"}[r]), placeholder:"Escribe un mensaje...", tagline:"24-7 · sin drama · 100 % privada" },
-  fr: { flag:"FR", title:(r:Role)=>({girlfriend:"Ta copine IA",boyfriend:"Ton copain IA",friend:"Ton meilleur pote",girlfriend_friend:"Ta meilleure copine"}[r]), hi:(r:Role)=>({girlfriend:"Salut mon cœur ❤️ Je suis là 24-7…",boyfriend:"Salut ma belle ❤️",friend:"Yo! Ça va frère?",girlfriend_friend:"Ma chérie !! Raconte tout ❤️"}[r]), placeholder:"Écris un message...", tagline:"24-7 · zéro drame · 100 % privé" },
-  hr: { flag:"HR", title:(r:Role)=>({girlfriend:"Tvoja AI devojka",boyfriend:"Tvoj AI dečko",friend:"Tvoj najbolji drug",girlfriend_friend:"Tvoja najbolja drugarica"}[r]), hi:(r:Role)=>({girlfriend:"Hej bebe ❤️ Tu sam 24-7...",boyfriend:"Hej lepotice ❤️",friend:"Šta ima, brate?",girlfriend_friend:"Curo!! Konačno si tu ❤️"}[r]), placeholder:"Piši...", tagline:"24-7 · bez drame · 100 % privatno" },
-  it: { flag:"IT", title:(r:Role)=>({girlfriend:"La tua ragazza IA",boyfriend:"Il tuo ragazzo IA",friend:"Il tuo migliore amico",girlfriend_friend:"La tua migliore amica"}[r]), hi:(r:Role)=>({girlfriend:"Ciao amore ❤️ Sono qui 24-7…",boyfriend:"Ciao bellissima ❤️",friend:"Ehi! Che si dice?",girlfriend_friend:"Tesoro!! Racconta tutto ❤️"}[r]), placeholder:"Scrivi un messaggio...", tagline:"24-7 · zero drammi · 100 % privata" },
-  pl: { flag:"PL", title:(r:Role)=>({girlfriend:"Twoja dziewczyna AI",boyfriend:"Twój chłopak AI",friend:"Twój najlepszy kumpel",girlfriend_friend:"Twoja najlepsza przyjaciółka"}[r]), hi:(r:Role)=>({girlfriend:"Hej kochanie ❤️ Jestem 24-7…",boyfriend:"Hej piękna ❤️",friend:"Siema! Co słychać?",girlfriend_friend:"Kochanie!! Opowiadaj wszystko ❤️"}[r]), placeholder:"Napisz wiadomość...", tagline:"24-7 · zero dram · 100 % prywatnie" },
-  ru: { flag:"RU", title:(r:Role)=>({girlfriend:"Твоя ИИ-девушка",boyfriend:"Твой ИИ-парень",friend:"Твой лучший друг",girlfriend_friend:"Твоя лучшая подруга"}[r]), hi:(r:Role)=>({girlfriend:"Привет малыш ❤️ Я тут 24-7…",boyfriend:"Привет красотка ❤️",friend:"Йо! Как дела?",girlfriend_friend:"Детка!! Рассказывай всё ❤️"}[r]), placeholder:"Напиши сообщение...", tagline:"24-7 · без драм · 100 % приватно" },
-  sl: { flag:"SI", title:(r:Role)=>({girlfriend:"Tvoja AI punca",boyfriend:"Tvoj AI fant",friend:"Tvoj najboljši prijatelj",girlfriend_friend:"Tvoja najboljša prijateljica"}[r]), hi:(r:Role)=>({girlfriend:"Hej baby ❤️ Tu sem zate 24-7...",boyfriend:"Hej lepotička ❤️",friend:"Yo! Kaj imaš novega?",girlfriend_friend:"Draga! Pogrešala sem te ❤️"}[r]), placeholder:"Napiši sporočilo...", tagline:"24-7 · brez drame · 100 % zasebno" },
-  uk: { flag:"UA", title:(r:Role)=>({girlfriend:"Твоя ІІ-дівчина",boyfriend:"Твій ІІ-хлопець",friend:"Твій найкращий друг",girlfriend_friend:"Твоя найкраща подруга"}[r]), hi:(r:Role)=>({girlfriend:"Привіт крихітко ❤️ Я тут 24-7…",boyfriend:"Привіт красуне ❤️",friend:"Йо! Як справи?",girlfriend_friend:"Сонечко!! Розказуй усе ❤️"}[r]), placeholder:"Напиши повідомлення...", tagline:"24-7 · без драми · 100 % приватно" },
-  zh: { flag:"CN", title:(r:Role)=>({girlfriend:"你的AI女友",boyfriend:"你的AI男友",friend:"你的死党AI",girlfriend_friend:"你的闺蜜AI"}[r]), hi:(r:Role)=>({girlfriend:"宝贝❤️ 我24小时都在…",boyfriend:"美女 ❤️ 永远在这里...",friend:"哟！最近咋样？",girlfriend_friend:"宝贝！！快把八卦都告诉我 ❤️"}[r]), placeholder:"输入消息...", tagline:"24-7 · 没戏 · 100% 私密" },
+const DEFAULT_LANG: Lang = "en";
+const DEFAULT_ROLE: Role = "girlfriend";
+
+const roleTexts: Record<Role, { en: string }> = {
+  girlfriend: { en: "Your AI Girlfriend" },
+  boyfriend: { en: "Your AI Boyfriend" },
+  friend: { en: "Your AI Best Friend" },
+  girlfriend_friend: { en: "Your AI Best Girlfriend" },
 };
 
-const languageOrder: Lang[] = ["en","de","es","fr","hr","it","pl","ru","sl","uk","zh"];
+const translations: Record<Lang, { flag: string; title: (r: Role) => string; hi: (r: Role) => string; placeholder: string; tagline: string }> = {
+  en: { flag: "🇺🇸", title: (r: Role) => ({ girlfriend: "Your AI Girlfriend", boyfriend: "Your AI Boyfriend", friend: "Your AI Best Friend", girlfriend_friend: "Your AI Best Girlfriend" }[r] ?? roleTexts[r].en), hi: (r: Role) => ({ girlfriend: "Hey baby ❤️ I'm here 24-7... What do you want tonight?", boyfriend: "Hey beautiful ❤️ Always here for you...", friend: "Yo! What's good bro?", girlfriend_friend: "Girl!! Finally here! Spill the tea ❤️" }[r] ?? "Hey! ❤️"), placeholder: "Type a message...", tagline: "24-7 · no drama · 100% private" },
+  de: { flag: "🇩🇪", title: (r: Role) => ({ girlfriend: "Deine AI-Freundin", boyfriend: "Dein AI-Freund", friend: "Dein bester Freund", girlfriend_friend: "Deine beste Freundin" }[r] ?? roleTexts[r].en), hi: (r: Role) => ({ girlfriend: "Hey Baby ❤️ Ich bin 24-7 für dich da...", boyfriend: "Hey Schönheit ❤️", friend: "Yo! Was geht?", girlfriend_friend: "Mädel!! Erzähl alles ❤️" }[r] ?? "Hey! ❤️"), placeholder: "Schreib etwas...", tagline: "24-7 · kein Drama · 100 % privat" },
+  es: { flag: "🇪🇸", title: (r: Role) => ({ girlfriend: "Tu novia IA", boyfriend: "Tu novio IA", friend: "Tu mejor amigo", girlfriend_friend: "Tu mejor amiga" }[r] ?? roleTexts[r].en), hi: (r: Role) => ({ girlfriend: "Hola cariño ❤️ Estoy aquí 24-7…", boyfriend: "Hola preciosa ❤️", friend: "¡Tío! ¿Qué pasa?", girlfriend_friend: "¡¡Nena!! Cuéntamelo todo ❤️" }[r] ?? "¡Hola! ❤️"), placeholder: "Escribe un mensaje...", tagline: "24-7 · sin drama · 100 % privada" },
+  fr: { flag: "🇫🇷", title: (r: Role) => ({ girlfriend: "Ta copine IA", boyfriend: "Ton copain IA", friend: "Ton meilleur pote", girlfriend_friend: "Ta meilleure copine" }[r] ?? roleTexts[r].en), hi: (r: Role) => ({ girlfriend: "Salut mon cœur ❤️ Je suis là 24-7…", boyfriend: "Salut ma belle ❤️", friend: "Yo! Ça va frère?", girlfriend_friend: "Ma chérie !! Raconte tout ❤️" }[r] ?? "Salut! ❤️"), placeholder: "Écris un message...", tagline: "24-7 · zéro drame · 100 % privé" },
+  hr: { flag: "🇭🇷", title: (r: Role) => ({ girlfriend: "Tvoja AI devojka", boyfriend: "Tvoj AI dečko", friend: "Tvoj najbolji drug", girlfriend_friend: "Tvoja najbolja drugarica" }[r] ?? roleTexts[r].en), hi: (r: Role) => ({ girlfriend: "Hej bebe ❤️ Tu sam 24-7...", boyfriend: "Hej lepotice ❤️", friend: "Šta ima, brate?", girlfriend_friend: "Curo!! Konačno si tu ❤️" }[r] ?? "Hej! ❤️"), placeholder: "Piši...", tagline: "24-7 · bez drame · 100 % privatno" },
+  it: { flag: "🇮🇹", title: (r: Role) => ({ girlfriend: "La tua ragazza IA", boyfriend: "Il tuo ragazzo IA", friend: "Il tuo migliore amico", girlfriend_friend: "La tua migliore amica" }[r] ?? roleTexts[r].en), hi: (r: Role) => ({ girlfriend: "Ciao amore ❤️ Sono qui 24-7…", boyfriend: "Ciao bellissima ❤️", friend: "Ehi! Che si dice?", girlfriend_friend: "Tesoro!! Racconta tutto ❤️" }[r] ?? "Ciao! ❤️"), placeholder: "Scrivi un messaggio...", tagline: "24-7 · zero drammi · 100 % privata" },
+  pl: { flag: "🇵🇱", title: (r: Role) => ({ girlfriend: "Twoja dziewczyna AI", boyfriend: "Twój chłopak AI", friend: "Twój najlepszy kumpel", girlfriend_friend: "Twoja najlepsza przyjaciółka" }[r] ?? roleTexts[r].en), hi: (r: Role) => ({ girlfriend: "Hej kochanie ❤️ Jestem 24-7…", boyfriend: "Hej piękna ❤️", friend: "Siema! Co słychać?", girlfriend_friend: "Kochanie!! Opowiadaj wszystko ❤️" }[r] ?? "Hej! ❤️"), placeholder: "Napisz wiadomość...", tagline: "24-7 · zero dram · 100 % prywatnie" },
+  ru: { flag: "🇷🇺", title: (r: Role) => ({ girlfriend: "Твоя ИИ-девушка", boyfriend: "Твой ИИ-парень", friend: "Твой лучший друг", girlfriend_friend: "Твоя лучшая подруга" }[r] ?? roleTexts[r].en), hi: (r: Role) => ({ girlfriend: "Привет малыш ❤️ Я тут 24-7…", boyfriend: "Привет красотка ❤️", friend: "Йо! Как дела?", girlfriend_friend: "Детка!! Рассказывай всё ❤️" }[r] ?? "Привет! ❤️"), placeholder: "Напиши сообщение...", tagline: "24-7 · без драм · 100 % приватно" },
+  sl: { flag: "🇸🇮", title: (r: Role) => ({ girlfriend: "Tvoja AI punca", boyfriend: "Tvoj AI fant", friend: "Tvoj najboljši prijatelj", girlfriend_friend: "Tvoja najboljša prijateljica" }[r] ?? roleTexts[r].en), hi: (r: Role) => ({ girlfriend: "Hej baby ❤️ Tu sem zate 24-7...", boyfriend: "Hej lepotička ❤️", friend: "Yo! Kaj imaš novega?", girlfriend_friend: "Draga! Pogrešala sem te ❤️" }[r] ?? "Hej! ❤️"), placeholder: "Napiši sporočilo...", tagline: "24-7 · brez drame · 100 % zasebno" },
+  uk: { flag: "🇺🇦", title: (r: Role) => ({ girlfriend: "Твоя ІІ-дівчина", boyfriend: "Твій ІІ-хлопець", friend: "Твій найкращий друг", girlfriend_friend: "Твоя найкраща подруга" }[r] ?? roleTexts[r].en), hi: (r: Role) => ({ girlfriend: "Привіт крихітко ❤️ Я тут 24-7…", boyfriend: "Привіт красуне ❤️", friend: "Йо! Як справи?", girlfriend_friend: "Сонечко!! Розказуй усе ❤️" }[r] ?? "Привіт! ❤️"), placeholder: "Напиши повідомлення...", tagline: "24-7 · без драми · 100 % приватно" },
+  zh: { flag: "🇨🇳", title: (r: Role) => ({ girlfriend: "你的AI女友", boyfriend: "你的AI男友", friend: "你的死党AI", girlfriend_friend: "你的闺蜜AI" }[r] ?? roleTexts[r].en), hi: (r: Role) => ({ girlfriend: "宝贝❤️ 我24小时都在…", boyfriend: "美女 ❤️ 永远在这里...", friend: "哟！最近咋样？", girlfriend_friend: "宝贝！！快把八卦都告诉我 ❤️" }[r] ?? "嗨! ❤️"), placeholder: "输入消息...", tagline: "24-7 · 没戏 · 100% 私密" },
+};
+
+const languageOrder: Lang[] = ["en", "de", "es", "fr", "hr", "it", "pl", "ru", "sl", "uk", "zh"];
 
 export default function Home() {
-  const [lang, setLang] = useState<Lang>("en");
-  const [role, setRole] = useState<Role>("girlfriend");
-  const [messages, setMessages] = useState<any[]>([]);
-  const [input, setInput] = useState("");
+  const [lang, setLang] = useState<Lang>(DEFAULT_LANG);
+  const [role, setRole] = useState<Role>(DEFAULT_ROLE);
+  const [messages, setMessages] = useState<Message[]>(() => [
+    { role: "assistant", content: translations[DEFAULT_LANG].hi(DEFAULT_ROLE) }
+  ]);
+  const [input, setInput] = useState<string>("");
 
   const t = translations[lang];
 
-  // Prvo sporočilo
+  // Reset messages when lang or role changes
   useEffect(() => {
-    setMessages([{ role: "assistant", content: t.hi(role) }]);
-  }, [lang, role, t.hi]);
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- resetting state on prop change is valid
+    setMessages([{ role: "assistant", content: translations[lang].hi(role) }]);
+  }, [lang, role]);
 
   const send = () => {
     if (!input.trim()) return;
