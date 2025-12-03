@@ -8,7 +8,7 @@ export default function Home() {
         color: "#ec4899",
       }}
     >
-      ŽIVA JE – DELUJE!!!
+      ŽIVA JE – DELUJE!!! 🎉
     </h1>
   );
-}
+}  // ← This closing brace is what you're missing!
