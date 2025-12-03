@@ -11,4 +11,4 @@ export default function Home() {
       ŽIVA JE – DELUJE!!! 🎉
     </h1>
   );
-}  // ← This closing brace is what you're missing!
+}
