@@ -8,6 +8,8 @@ export default function Home() {
         color: "#ec4899",
       }}
     >
+      Tvoja ex AI devojka
+      <br />
       ŽIVA JE – DELUJE!!! 🎉
     </h1>
   );
