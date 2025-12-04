@@ -3,6 +3,21 @@ import { stripe, SUBSCRIPTION_PRICE_ID } from '@/lib/stripe';
 
 export async function POST(request: NextRequest) {
   try {
+    // Check if Stripe is configured
+    if (!stripe) {
+      return NextResponse.json(
+        { error: 'Stripe is not configured. Please set STRIPE_SECRET_KEY.' },
+        { status: 503 }
+      );
+    }
+
+    if (!SUBSCRIPTION_PRICE_ID) {
+      return NextResponse.json(
+        { error: 'Stripe price ID is not configured. Please set STRIPE_PRICE_ID.' },
+        { status: 503 }
+      );
+    }
+
     const { userId, userEmail } = await request.json();
 
     if (!userId) {

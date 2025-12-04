@@ -1,6 +1,25 @@
 import { NextRequest, NextResponse } from 'next/server';
 
-// Avatar generation using placeholder API (DiceBear for anime, UI Avatars for realistic)
+// DiceBear API Configuration
+// Update this version when DiceBear releases new API versions
+const DICEBEAR_BASE_URL = 'https://api.dicebear.com';
+const DICEBEAR_VERSION = '7.x';
+
+// Avatar style configurations
+const AVATAR_STYLES = {
+  anime: {
+    style: 'adventurer-neutral',
+    backgroundColor: 'ffdfbf,ffd5dc,d1d4f9,c0aede',
+    backgroundType: 'gradientLinear',
+  },
+  realistic: {
+    style: 'personas',
+    backgroundColor: 'b6e3f4,c0aede,d1d4f9',
+    backgroundType: 'gradientLinear',
+  },
+};
+
+// Avatar generation using DiceBear API
 // In production, you could integrate with DALL-E, Stable Diffusion, etc.
 
 export async function POST(request: NextRequest) {
@@ -14,19 +33,22 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Validate style
+    if (style !== 'anime' && style !== 'realistic') {
+      return NextResponse.json(
+        { error: 'Style must be either "anime" or "realistic"' },
+        { status: 400 }
+      );
+    }
+
     // Generate a unique seed from description for consistent results
     const seed = hashString(description + userId);
 
-    let avatarUrl: string;
-
-    if (style === 'anime') {
-      // DiceBear Avatars - anime style (bottts, adventurer, lorelei)
-      // Using adventurer-neutral for anime-like style
-      avatarUrl = `https://api.dicebear.com/7.x/adventurer-neutral/svg?seed=${seed}&backgroundColor=ffdfbf,ffd5dc,d1d4f9,c0aede&backgroundType=gradientLinear`;
-    } else {
-      // DiceBear - realistic style (avataaars, big-smile, personas)
-      avatarUrl = `https://api.dicebear.com/7.x/personas/svg?seed=${seed}&backgroundColor=b6e3f4,c0aede,d1d4f9&backgroundType=gradientLinear`;
-    }
+    // Get style configuration
+    const styleConfig = AVATAR_STYLES[style as keyof typeof AVATAR_STYLES];
+    
+    // Build avatar URL
+    const avatarUrl = `${DICEBEAR_BASE_URL}/${DICEBEAR_VERSION}/${styleConfig.style}/svg?seed=${seed}&backgroundColor=${styleConfig.backgroundColor}&backgroundType=${styleConfig.backgroundType}`;
 
     return NextResponse.json({
       avatarUrl,
