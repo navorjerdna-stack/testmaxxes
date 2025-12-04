@@ -1,28 +1,20 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useEffect, useCallback } from "react";
 import Image from "next/image";
-
-function getInitialAvatar(): string | null {
-  if (typeof window !== "undefined") {
-    return localStorage.getItem("avatar");
-  }
-  return null;
-}
 
 export default function ChatPage() {
   const [avatarPrompt, setAvatarPrompt] = useState("");
   const [avatar, setAvatar] = useState<string | null>(null);
-  const [isClient, setIsClient] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
-  // Client-side hydration
-  if (!isClient && typeof window !== "undefined") {
-    const savedAvatar = getInitialAvatar();
+  // Load saved avatar from localStorage on client-side mount
+  useEffect(() => {
+    const savedAvatar = localStorage.getItem("avatar");
     if (savedAvatar) {
       setAvatar(savedAvatar);
     }
-    setIsClient(true);
-  }
+  }, []);
 
   const save = useCallback((imageUrl: string) => {
     if (imageUrl) {
@@ -40,20 +32,33 @@ export default function ChatPage() {
         onChange={(e) => setAvatarPrompt(e.target.value)}
         style={{ padding: "0.8rem 1.5rem", borderRadius: "30px", background: "#222", color: "white", margin: "1rem" }}
       />
-      <button onClick={async () => {
-        if (!avatarPrompt.trim()) return;
-        const res = await fetch("/api/generate-avatar", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ prompt: avatarPrompt, style: "realistic", nsfw: avatarPrompt.includes("NSFW") }),
-        });
-        const { image_url } = await res.json();
-        if (image_url) {
-          setAvatar(image_url);
-          save(image_url);
-        }
-      }}>
-        Generate Avatar Now
+      <button 
+        disabled={isLoading}
+        onClick={async () => {
+          if (!avatarPrompt.trim()) return;
+          setIsLoading(true);
+          try {
+            const res = await fetch("/api/generate-avatar", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ prompt: avatarPrompt, style: "realistic", nsfw: avatarPrompt.includes("NSFW") }),
+            });
+            if (!res.ok) {
+              console.error("Failed to generate avatar:", res.statusText);
+              return;
+            }
+            const data = await res.json();
+            if (data.image_url) {
+              setAvatar(data.image_url);
+              save(data.image_url);
+            }
+          } catch (error) {
+            console.error("Error generating avatar:", error);
+          } finally {
+            setIsLoading(false);
+          }
+        }}>
+        {isLoading ? "Generating..." : "Generate Avatar Now"}
       </button>
       {avatar && <Image src={avatar} alt="Your AI Companion" width={150} height={150} style={{ borderRadius: "50%", marginTop: "1rem" }} unoptimized />}
       
