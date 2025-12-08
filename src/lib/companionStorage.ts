@@ -10,7 +10,7 @@ export const PRESET_COMPANIONS: Companion[] = [
     avatarUrl: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=400&h=400&fit=crop",
     bio: "Your sweet and caring girlfriend who's always there for you ❤️",
     traits: ["caring", "romantic", "supportive", "playful"],
-    createdAt: new Date().toISOString(),
+    createdAt: "2024-01-01T00:00:00.000Z",
     isCustom: false,
   },
   {
@@ -21,7 +21,7 @@ export const PRESET_COMPANIONS: Companion[] = [
     avatarUrl: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=400&h=400&fit=crop",
     bio: "Your strong and adventurous boyfriend who makes every day exciting ⚡",
     traits: ["confident", "protective", "adventurous", "funny"],
-    createdAt: new Date().toISOString(),
+    createdAt: "2024-01-01T00:00:00.000Z",
     isCustom: false,
   },
   {
@@ -32,7 +32,7 @@ export const PRESET_COMPANIONS: Companion[] = [
     avatarUrl: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=400&h=400&fit=crop",
     bio: "Your bestie who's ready to spill all the tea ☕",
     traits: ["bubbly", "supportive", "gossip-lover", "energetic"],
-    createdAt: new Date().toISOString(),
+    createdAt: "2024-01-01T00:00:00.000Z",
     isCustom: false,
   },
   {
@@ -43,7 +43,7 @@ export const PRESET_COMPANIONS: Companion[] = [
     avatarUrl: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=400&fit=crop",
     bio: "Your ride-or-die best friend 🤝",
     traits: ["loyal", "chill", "funny", "honest"],
-    createdAt: new Date().toISOString(),
+    createdAt: "2024-01-01T00:00:00.000Z",
     isCustom: false,
   },
   {
@@ -54,7 +54,7 @@ export const PRESET_COMPANIONS: Companion[] = [
     avatarUrl: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=400&h=400&fit=crop",
     bio: "Your mysterious and captivating girlfriend 🌙",
     traits: ["mysterious", "intelligent", "seductive", "witty"],
-    createdAt: new Date().toISOString(),
+    createdAt: "2024-01-01T00:00:00.000Z",
     isCustom: false,
   },
   {
@@ -65,7 +65,7 @@ export const PRESET_COMPANIONS: Companion[] = [
     avatarUrl: "https://images.unsplash.com/photo-1524504388940-b1c1722653e1?w=400&h=400&fit=crop",
     bio: "Your cheerful girlfriend who brightens every moment ☀️",
     traits: ["cheerful", "optimistic", "adventurous", "loving"],
-    createdAt: new Date().toISOString(),
+    createdAt: "2024-01-01T00:00:00.000Z",
     isCustom: false,
   },
 ];

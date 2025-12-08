@@ -28,8 +28,7 @@ export async function POST(req: NextRequest) {
 }
 
 // Simple personality-based response generator (placeholder for real LLM)
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-function generatePersonalityResponse(companion: any, userMessage: string): string {
+function generatePersonalityResponse(companion: { name: string; role: string; traits: string[] }, userMessage: string): string {
   const lowerMessage = userMessage.toLowerCase();
   
   // Personality-based response templates
