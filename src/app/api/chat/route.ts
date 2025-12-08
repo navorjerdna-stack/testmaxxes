@@ -2,23 +2,22 @@ import { NextRequest, NextResponse } from "next/server";
 
 export async function POST(req: NextRequest) {
   try {
-    const { message, companion, conversationHistory = [] } = await req.json();
+    const { message, companion } = await req.json();
 
     if (!message || !companion) {
       return NextResponse.json({ error: "Message and companion are required" }, { status: 400 });
     }
 
-    // Build a personality-aware prompt
-    const systemPrompt = `You are ${companion.name}, a ${companion.role} AI companion. Your personality: ${companion.personality}. Your traits include: ${companion.traits.join(", ")}. ${companion.bio || ""} Respond in a natural, human way that matches your personality. Keep responses conversational, warm, and engaging. Use emojis occasionally to express emotion.`;
-
-    const messages = [
-      { role: "system", content: systemPrompt },
-      ...conversationHistory.slice(-10), // Include last 10 messages for context
-      { role: "user", content: message },
-    ];
+    // In production, you'd build a personality-aware prompt with conversation history
+    // and use it with OpenAI, Anthropic, or another LLM API:
+    // const systemPrompt = `You are ${companion.name}, a ${companion.role} AI companion...`;
+    // const messages = [
+    //   { role: "system", content: systemPrompt },
+    //   ...conversationHistory.slice(-10),
+    //   { role: "user", content: message },
+    // ];
 
     // For now, generate a personality-based response
-    // In production, you'd integrate with OpenAI, Anthropic, or another LLM API
     const response = generatePersonalityResponse(companion, message);
 
     return NextResponse.json({ response });
@@ -29,6 +28,7 @@ export async function POST(req: NextRequest) {
 }
 
 // Simple personality-based response generator (placeholder for real LLM)
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function generatePersonalityResponse(companion: any, userMessage: string): string {
   const lowerMessage = userMessage.toLowerCase();
   

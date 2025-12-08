@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Companion } from "@/types/companion";
-import { companionStorage, PRESET_COMPANIONS } from "@/lib/companionStorage";
+import { companionStorage } from "@/lib/companionStorage";
 import Image from "next/image";
 
 export default function CompanionsPage() {
@@ -13,6 +13,7 @@ export default function CompanionsPage() {
   const [filterRole, setFilterRole] = useState<string>("all");
 
   useEffect(() => {
+    // Hydrate from localStorage on client side
     const allCompanions = companionStorage.getAllCompanions();
     setCompanions(allCompanions);
     
