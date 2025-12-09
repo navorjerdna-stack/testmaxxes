@@ -1,8 +1,14 @@
 "use client";
 import { useState } from "react";
+import { companionsMap } from "@/lib/companions";
 
 export default function Chat({ params }) {
-  const companion = { id: params.id, name: params.id.toUpperCase(), image: `https://i.imgur.com/abc123.jpg` };
+  const companionData = companionsMap[params.id];
+  const companion = companionData || { 
+    id: params.id, 
+    name: params.id.toUpperCase(), 
+    image: "https://i.imgur.com/abc123.jpg" 
+  };
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState("");
   const [nsfw, setNsfw] = useState(false);
@@ -64,7 +70,7 @@ export default function Chat({ params }) {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({ 
-          face_image_url: companion.image, 
+          face_image_url: companion.img || companion.image, 
           driving_audio_text: last 
         }),
       });
