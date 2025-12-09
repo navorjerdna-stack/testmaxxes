@@ -12,7 +12,7 @@ const companions = [
   { id: "haruto", name: "Haruto", desc: "Anime Husbando", img: "https://i.imgur.com/1pLmN5v.jpg" },
   { id: "emma", name: "Emma", desc: "Dominantna Angležinica", img: "https://i.imgur.com/Rt5yH9u.jpg" },
   { id: "james", name: "James", desc: "Dominantni Anglež", img: "https://i.imgur.com/Mk8pQ3w.jpg" },
-  // Dodaj ostalih 10 po želji – isti format
+  // Add remaining 10 as desired - same format
 ];
 
 export default function Home() {

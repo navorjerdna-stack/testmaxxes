@@ -1,4 +1,11 @@
 module.exports = {
   reactStrictMode: true,
-  images: { domains: ['*'] },
+  images: { 
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'i.imgur.com',
+      },
+    ],
+  },
 }

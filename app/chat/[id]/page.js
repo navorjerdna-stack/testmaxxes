@@ -1,7 +1,5 @@
 "use client";
 import { useState } from "react";
-import { fal } from "@fal-ai/client";
-fal.config({ credentials: process.env.NEXT_PUBLIC_FAL_KEY });
 
 export default function Chat({ params }) {
   const companion = { id: params.id, name: params.id.toUpperCase(), image: `https://i.imgur.com/abc123.jpg` };
@@ -9,27 +7,89 @@ export default function Chat({ params }) {
   const [input, setInput] = useState("");
   const [nsfw, setNsfw] = useState(false);
   const [liveVideo, setLiveVideo] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
 
   const send = async () => {
-    if (!input.trim()) return;
+    if (!input.trim() || loading) return;
+    
+    setLoading(true);
+    setError(null);
     const userMsg = { role: "user", content: input };
     setMessages(prev => [...prev, userMsg]);
-
-    const res = await fetch("/api/chat", {
-      method: "POST",
-      body: JSON.stringify({ message: input, history: messages, nsfw, companion: companion.name }),
-    });
-    const data = await res.json();
-    setMessages(prev => [...prev, { role: "assistant", content: data.reply }]);
     setInput("");
+
+    try {
+      const res = await fetch("/api/chat", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ message: input, history: messages, nsfw, companion: companion.name }),
+      });
+
+      if (!res.ok) {
+        throw new Error(`API error: ${res.status}`);
+      }
+
+      const data = await res.json();
+      
+      if (data.error) {
+        throw new Error(data.error);
+      }
+
+      setMessages(prev => [...prev, { role: "assistant", content: data.reply }]);
+    } catch (err) {
+      console.error('Chat error:', err);
+      setError(err.message || 'Failed to send message');
+      // Remove the user message if the request failed
+      setMessages(prev => prev.slice(0, -1));
+      setInput(input); // Restore the input
+    } finally {
+      setLoading(false);
+    }
   };
 
   const generateLive = async () => {
-    const last = messages[messages.length - 1]?.content || "Živjo!";
-    const result = await fal.subscribe("fal-ai/live-portrait", {
-      input: { face_image_url: companion.image, driving_audio_text: last }
-    });
-    setLiveVideo(result.data.video.url);
+    if (loading) return;
+    
+    setLoading(true);
+    setError(null);
+    
+    try {
+      const last = messages[messages.length - 1]?.content || "Živjo!";
+      const res = await fetch("/api/generate-live", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ 
+          face_image_url: companion.image, 
+          driving_audio_text: last 
+        }),
+      });
+
+      if (!res.ok) {
+        throw new Error(`API error: ${res.status}`);
+      }
+
+      const result = await res.json();
+      
+      if (result.error) {
+        throw new Error(result.error);
+      }
+
+      if (result.data?.video?.url) {
+        setLiveVideo(result.data.video.url);
+      } else {
+        throw new Error('Invalid response format');
+      }
+    } catch (err) {
+      console.error('Live video error:', err);
+      setError(err.message || 'Failed to generate live video');
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -49,12 +109,19 @@ export default function Chat({ params }) {
             </label>
             <button
               onClick={generateLive}
-              className="px-4 py-2 bg-pink-600 hover:bg-pink-700 text-white rounded-lg transition"
+              disabled={loading}
+              className="px-4 py-2 bg-pink-600 hover:bg-pink-700 text-white rounded-lg transition disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              Generate Live Video
+              {loading ? 'Generating...' : 'Generate Live Video'}
             </button>
           </div>
         </div>
+
+        {error && (
+          <div className="bg-red-500/20 border border-red-500 text-white rounded-lg p-4 mb-4">
+            {error}
+          </div>
+        )}
 
         {liveVideo && (
           <div className="bg-white/10 backdrop-blur-lg rounded-2xl p-6 mb-4">
@@ -79,6 +146,11 @@ export default function Chat({ params }) {
               </div>
             </div>
           ))}
+          {loading && (
+            <div className="text-center text-white/70">
+              <span className="inline-block animate-pulse">Typing...</span>
+            </div>
+          )}
         </div>
 
         <div className="flex gap-2">
@@ -86,15 +158,17 @@ export default function Chat({ params }) {
             type="text"
             value={input}
             onChange={(e) => setInput(e.target.value)}
-            onKeyPress={(e) => e.key === "Enter" && send()}
+            onKeyPress={(e) => e.key === "Enter" && !loading && send()}
             placeholder="Napiši sporočilo..."
-            className="flex-1 px-4 py-3 rounded-lg bg-white/20 text-white placeholder-white/50 border border-white/30 focus:outline-none focus:border-white/50"
+            disabled={loading}
+            className="flex-1 px-4 py-3 rounded-lg bg-white/20 text-white placeholder-white/50 border border-white/30 focus:outline-none focus:border-white/50 disabled:opacity-50"
           />
           <button
             onClick={send}
-            className="px-6 py-3 bg-pink-600 hover:bg-pink-700 text-white rounded-lg transition font-semibold"
+            disabled={loading || !input.trim()}
+            className="px-6 py-3 bg-pink-600 hover:bg-pink-700 text-white rounded-lg transition font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            Pošlji
+            {loading ? '...' : 'Pošlji'}
           </button>
         </div>
       </div>
