@@ -69,7 +69,7 @@ export default function CompanionSelect() {
           Choose Your AI Companion
         </h1>
         <p style={{ fontSize: "1.5rem", textAlign: "center", opacity: 0.8, marginBottom: "3rem" }}>
-          Select from 20+ unique personalities
+          Select from 24 unique personalities
         </p>
 
         {/* Filter buttons */}

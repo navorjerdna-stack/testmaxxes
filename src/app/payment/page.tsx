@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { loadStripe } from "@stripe/stripe-js";
 import { PayPalScriptProvider, PayPalButtons } from "@paypal/react-paypal-js";
 
-const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY || "pk_test_placeholder");
+const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY || "");
 
 type PricingPlan = {
   id: string;
@@ -198,7 +198,7 @@ export default function PaymentPage() {
 
             {paymentMethod === "paypal" && (
               <PayPalScriptProvider options={{ 
-                clientId: process.env.NEXT_PUBLIC_PAYPAL_CLIENT_ID || "paypal_client_id_placeholder",
+                clientId: process.env.NEXT_PUBLIC_PAYPAL_CLIENT_ID || "",
                 currency: "EUR"
               }}>
                 <PayPalButtons

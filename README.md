@@ -40,7 +40,7 @@ npm install
 3. Create a `.env.local` file:
 ```env
 # FAL API Key for image generation
-FAL_KEY=032977a9-fc5a-49a3-9d98-3419d8fd28d8:966be010c3942abecd4f4f5f7223438b
+FAL_KEY=your_fal_api_key_here
 
 # Stripe Keys
 NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=pk_live_your_key_here
