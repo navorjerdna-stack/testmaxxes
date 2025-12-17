@@ -1,9 +1,10 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 
 type Role = "girlfriend" | "boyfriend" | "friend" | "girlfriend_friend";
-type Lang = "en"|"de"|"es"|"fr"|"hr"|"it"|"pl"|"ru"|"sl"|"uk"|"zh";
+type Lang = "en"|"de"|"es"|"fr"|"hr"|"sr"|"mk"|"sq"|"ro"|"bg"|"it"|"pl"|"ru"|"sl"|"uk"|"zh";
 
 const translations = {
   en: { flag:"US", title:(r:Role)=>({girlfriend:"Your AI Girlfriend",boyfriend:"Your AI Boyfriend",friend:"Your AI Best Friend",girlfriend_friend:"Your AI Best Girlfriend"}[r]), hi:(r:Role)=>({girlfriend:"Hey baby ❤️ I'm here 24-7... What do you want tonight?",boyfriend:"Hey beautiful ❤️ Always here for you...",friend:"Yo! What's good bro?",girlfriend_friend:"Girl!! Finally here! Spill the tea ❤️"}[r]), placeholder:"Type a message...", tagline:"24-7 · no drama · 100% private" },
@@ -17,15 +18,21 @@ const translations = {
   sl: { flag:"SI", title:(r:Role)=>({girlfriend:"Tvoja AI punca",boyfriend:"Tvoj AI fant",friend:"Tvoj najboljši prijatelj",girlfriend_friend:"Tvoja najboljša prijateljica"}[r]), hi:(r:Role)=>({girlfriend:"Hej baby ❤️ Tu sem zate 24-7...",boyfriend:"Hej lepotička ❤️",friend:"Yo! Kaj imaš novega?",girlfriend_friend:"Draga! Pogrešala sem te ❤️"}[r]), placeholder:"Napiši sporočilo...", tagline:"24-7 · brez drame · 100 % zasebno" },
   uk: { flag:"UA", title:(r:Role)=>({girlfriend:"Твоя ІІ-дівчина",boyfriend:"Твій ІІ-хлопець",friend:"Твій найкращий друг",girlfriend_friend:"Твоя найкраща подруга"}[r]), hi:(r:Role)=>({girlfriend:"Привіт крихітко ❤️ Я тут 24-7…",boyfriend:"Привіт красуне ❤️",friend:"Йо! Як справи?",girlfriend_friend:"Сонечко!! Розказуй усе ❤️"}[r]), placeholder:"Напиши повідомлення...", tagline:"24-7 · без драми · 100 % приватно" },
   zh: { flag:"CN", title:(r:Role)=>({girlfriend:"你的AI女友",boyfriend:"你的AI男友",friend:"你的死党AI",girlfriend_friend:"你的闺蜜AI"}[r]), hi:(r:Role)=>({girlfriend:"宝贝❤️ 我24小时都在…",boyfriend:"美女 ❤️ 永远在这里...",friend:"哟！最近咋样？",girlfriend_friend:"宝贝！！快把八卦都告诉我 ❤️"}[r]), placeholder:"输入消息...", tagline:"24-7 · 没戏 · 100% 私密" },
+  sr: { flag:"RS", title:(r:Role)=>({girlfriend:"Tvoja AI devojka",boyfriend:"Tvoj AI dečko",friend:"Tvoj najbolji drug",girlfriend_friend:"Tvoja najbolja drugarica"}[r]), hi:(r:Role)=>({girlfriend:"Hej bebo ❤️ Tu sam 24-7...",boyfriend:"Hej lepotice ❤️",friend:"Šta ima, brate?",girlfriend_friend:"Cure!! Konačno si tu ❤️"}[r]), placeholder:"Piši poruku...", tagline:"24-7 · bez drame · 100 % privatno" },
+  mk: { flag:"MK", title:(r:Role)=>({girlfriend:"Твоја AI девојка",boyfriend:"Твој AI момче",friend:"Твој најдобар другар",girlfriend_friend:"Твоја најдобра другарка"}[r]), hi:(r:Role)=>({girlfriend:"Здраво мило ❤️ Тука сум 24-7...",boyfriend:"Здраво убавице ❤️",friend:"Што има брате?",girlfriend_friend:"Душо!! Коначно си тука ❤️"}[r]), placeholder:"Напиши порака...", tagline:"24-7 · без драма · 100 % приватно" },
+  sq: { flag:"AL", title:(r:Role)=>({girlfriend:"E dashura jote AI",boyfriend:"I dashuri yt AI",friend:"Shoku yt më i mirë",girlfriend_friend:"Shoqja jote më e mirë"}[r]), hi:(r:Role)=>({girlfriend:"Hej zemër ❤️ Jam këtu 24-7...",boyfriend:"Hej e bukur ❤️",friend:"Çfarë ka vëlla?",girlfriend_friend:"Zonja!! Më në fund ❤️"}[r]), placeholder:"Shkruaj mesazh...", tagline:"24-7 · pa dramë · 100 % private" },
+  ro: { flag:"RO", title:(r:Role)=>({girlfriend:"Prietena ta AI",boyfriend:"Prietenul tău AI",friend:"Cel mai bun prieten",girlfriend_friend:"Cea mai bună prietenă"}[r]), hi:(r:Role)=>({girlfriend:"Hei iubire ❤️ Sunt aici 24-7...",boyfriend:"Hei frumoaso ❤️",friend:"Ce mai faci frate?",girlfriend_friend:"Draga!! În sfârșit ești aici ❤️"}[r]), placeholder:"Scrie un mesaj...", tagline:"24-7 · fără dramă · 100 % privat" },
+  bg: { flag:"BG", title:(r:Role)=>({girlfriend:"Твоята AI приятелка",boyfriend:"Твоят AI приятел",friend:"Твоят най-добър приятел",girlfriend_friend:"Твоята най-добра приятелка"}[r]), hi:(r:Role)=>({girlfriend:"Хей скъпи ❤️ Тук съм 24-7...",boyfriend:"Хей красавице ❤️",friend:"Какво стана брат?",girlfriend_friend:"Мила!! Най-накрая ❤️"}[r]), placeholder:"Напиши съобщение...", tagline:"24-7 · без драма · 100 % поверително" },
 };
 
-const languageOrder: Lang[] = ["en","de","es","fr","hr","it","pl","ru","sl","uk","zh"];
+const languageOrder: Lang[] = ["en","de","es","fr","hr","sr","mk","sq","ro","bg","it","pl","ru","sl","uk","zh"];
 
 export default function Home() {
   const [lang, setLang] = useState<Lang>("en");
   const [role, setRole] = useState<Role>("girlfriend");
   const [messages, setMessages] = useState<any[]>([]);
   const [input, setInput] = useState("");
+  const [showChat, setShowChat] = useState(false);
 
   const t = translations[lang];
 
@@ -43,11 +50,43 @@ export default function Home() {
     setInput("");
   };
 
+  const router = useRouter();
+
   return (
     <main style={{ minHeight:"100vh", background:"#000", color:"#ff66b3", fontFamily:"system-ui, sans-serif" }}>
       <div style={{textAlign:"center", padding:"2rem 1rem"}}>
         <h1 style={{fontSize:"4.5rem", fontWeight:900, margin:0}}>{t.title(role)}</h1>
         <p style={{fontSize:"2.2rem", margin:"1rem 0", opacity:0.9}}>{t.tagline}</p>
+
+        {/* Call to Action Button */}
+        {!showChat && (
+          <button 
+            onClick={() => router.push("/select")}
+            style={{
+              margin: "2rem 0",
+              padding: "1.5rem 3rem",
+              background: "#ff66b3",
+              color: "#000",
+              border: "none",
+              borderRadius: "50px",
+              fontSize: "1.5rem",
+              fontWeight: "bold",
+              cursor: "pointer",
+              boxShadow: "0 10px 30px rgba(255, 102, 179, 0.4)",
+              transition: "all 0.3s ease"
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.transform = "scale(1.05)";
+              e.currentTarget.style.boxShadow = "0 15px 40px rgba(255, 102, 179, 0.6)";
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.transform = "scale(1)";
+              e.currentTarget.style.boxShadow = "0 10px 30px rgba(255, 102, 179, 0.4)";
+            }}
+          >
+            🌟 Choose Your Companion Now
+          </button>
+        )}
 
         {/* Role buttons */}
         <div style={{margin:"2rem 0"}}>
@@ -66,32 +105,53 @@ export default function Home() {
             </button>
           ))}
         </div>
+
+        {/* Demo chat button */}
+        <button 
+          onClick={() => setShowChat(!showChat)}
+          style={{
+            padding: "1rem 2rem",
+            background: "#333",
+            color: "#fff",
+            border: "none",
+            borderRadius: "30px",
+            fontSize: "1rem",
+            fontWeight: "bold",
+            cursor: "pointer"
+          }}
+        >
+          {showChat ? "Hide Demo" : "Try Demo Chat"}
+        </button>
       </div>
 
       {/* Messages */}
-      <div style={{maxWidth:"900px", margin:"0 auto", padding:"0 1rem 120px"}}>
-        {messages.map((m,i)=>(
-          <div key={i} style={{textAlign:m.role==="user"?"right":"left", margin:"1.2rem 0"}}>
-            <div style={{display:"inline-block", background:m.role==="user"?"#ff66b3":"#333", color:m.role==="user"?"#000":"#fff", padding:"1.1rem 1.7rem", borderRadius:"22px", maxWidth:"82%"}}>
-              {m.content}
-            </div>
+      {showChat && (
+        <>
+          <div style={{maxWidth:"900px", margin:"0 auto", padding:"0 1rem 120px"}}>
+            {messages.map((m,i)=>(
+              <div key={i} style={{textAlign:m.role==="user"?"right":"left", margin:"1.2rem 0"}}>
+                <div style={{display:"inline-block", background:m.role==="user"?"#ff66b3":"#333", color:m.role==="user"?"#000":"#fff", padding:"1.1rem 1.7rem", borderRadius:"22px", maxWidth:"82%"}}>
+                  {m.content}
+                </div>
+              </div>
+            ))}
           </div>
-        ))}
-      </div>
 
-      {/* Input */}
-      <div style={{position:"fixed", bottom:0, left:0, right:0, background:"#111", padding:"1rem", display:"flex", alignItems:"center"}}>
-        <input
-          value={input}
-          onChange={e=>setInput(e.target.value)}
-          onKeyDown={e=>e.key==="Enter" && !e.shiftKey && (e.preventDefault(), send())}
-          placeholder={t.placeholder}
-          style={{flex:1, padding:"1.2rem 1.8rem", borderRadius:"30px", border:"none", background:"#222", color:"white", fontSize:"1.1rem"}}
-        />
-        <button onClick={send} style={{marginLeft:"1rem", background:"#ff66b3", border:"none", width:"56px", height:"56px", borderRadius:"50%", color:"black", fontSize:"1.6rem"}}>
-          Send
-        </button>
-      </div>
+          {/* Input */}
+          <div style={{position:"fixed", bottom:0, left:0, right:0, background:"#111", padding:"1rem", display:"flex", alignItems:"center"}}>
+            <input
+              value={input}
+              onChange={e=>setInput(e.target.value)}
+              onKeyDown={e=>e.key==="Enter" && !e.shiftKey && (e.preventDefault(), send())}
+              placeholder={t.placeholder}
+              style={{flex:1, padding:"1.2rem 1.8rem", borderRadius:"30px", border:"none", background:"#222", color:"white", fontSize:"1.1rem"}}
+            />
+            <button onClick={send} style={{marginLeft:"1rem", background:"#ff66b3", border:"none", width:"56px", height:"56px", borderRadius:"50%", color:"black", fontSize:"1.6rem"}}>
+              Send
+            </button>
+          </div>
+        </>
+      )}
     </main>
   );
 }
